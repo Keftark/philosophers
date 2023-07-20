@@ -6,13 +6,20 @@
 /*   By: cpothin <cpothin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/13 08:34:26 by cpothin           #+#    #+#             */
-/*   Updated: 2023/07/15 09:21:48 by cpothin          ###   ########.fr       */
+/*   Updated: 2023/07/19 16:37:26 by cpothin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-suseconds_t	get_elapsed_time()
+void	set_start_eat_timer(t_data *data, t_philo *philo)
+{
+	pthread_mutex_lock(&data->m_time);
+	philo->start_eat_time = get_elapsed_time() - data->start_time;
+	pthread_mutex_unlock(&data->m_time);
+}
+
+suseconds_t	get_elapsed_time(void)
 {
 	struct timeval	start_time;
 

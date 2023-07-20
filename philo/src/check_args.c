@@ -6,13 +6,13 @@
 /*   By: cpothin <cpothin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/11 15:46:09 by cpothin           #+#    #+#             */
-/*   Updated: 2023/07/11 16:10:42 by cpothin          ###   ########.fr       */
+/*   Updated: 2023/07/19 09:23:23 by cpothin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-int ft_isdigit(char *str)
+int	ft_isdigit(char *str)
 {
 	int	i;
 
@@ -25,7 +25,7 @@ int ft_isdigit(char *str)
 
 int	check_args(int argc, char *argv[])
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (argc < 5 || argc > 6)

@@ -6,40 +6,29 @@
 /*   By: cpothin <cpothin@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/11 08:50:56 by cpothin           #+#    #+#             */
-/*   Updated: 2023/07/17 17:32:14 by cpothin          ###   ########.fr       */
+/*   Updated: 2023/07/20 08:41:55 by cpothin          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philosophers.h"
 
-void	action_think(t_data *data, t_philo *philosopher)
+void	action_think(t_data *data, t_philo *philo)
 {
-	pthread_mutex_lock(&data->m_write);
-	philosopher->action = THINK;
-	printf("%lu %d is thinking\n", get_elapsed_time() - data->start_time,
-		philosopher->id);
-	pthread_mutex_unlock(&data->m_write);
+	print_message(data, "is thinking", philo->id);
 }
 
-void	action_sleep(t_data *data, t_philo *philosopher)
+void	action_sleep(t_data *data, t_philo *philo)
 {
-	pthread_mutex_lock(&data->m_write);
-	philosopher->action = SLEEP;
-	printf("%lu %d is sleeping\n", get_elapsed_time() - data->start_time,
-		philosopher->id);
-	pthread_mutex_unlock(&data->m_write);
+	print_message(data, "is sleeping", philo->id);
 	ft_usleep(data->sleep_delay);
 }
 
-// apres l'appel de cette fonction, on arrete le programme
-void	action_die(t_data *data, t_philo *philosopher)
+void	action_die(t_data *data, t_philo *philo)
 {
-	pthread_mutex_lock(&data->m_write);
-	philosopher->action = DEAD;
-	data->philo_died = 1;
-	printf("%lu %d died\n", get_elapsed_time() - data->start_time,
-		philosopher->id);
-	pthread_mutex_unlock(&data->m_write);
+	pthread_mutex_lock(&data->m_state);
+	data->sim_state = DEATH;
+	pthread_mutex_unlock(&data->m_state);
+	print_message(data, "died", philo->id);
 }
 
 int	check_meals(t_data *data)
@@ -47,19 +36,33 @@ int	check_meals(t_data *data)
 	int	i;
 
 	i = 0;
+	if (data->max_eat == -1)
+		return (0);
 	while (i < data->philos_amount)
 	{
+		pthread_mutex_lock(&data->m_meals);
 		if (data->philos[i]->meals < data->max_eat)
+		{
+			pthread_mutex_unlock(&data->m_meals);
 			return (0);
+		}
+		pthread_mutex_unlock(&data->m_meals);
 		i++;
 	}
-	data->finish_eat = 1;
+	pthread_mutex_lock(&data->m_state);
+	data->sim_state = FINISH;
+	pthread_mutex_unlock(&data->m_state);
 	return (1);
 }
 
 int	check_end(t_data *data)
 {
-	if (!data->finish_eat && !data->philo_died)
+	pthread_mutex_lock(&data->m_state);
+	if (data->sim_state == RUNNING)
+	{
+		pthread_mutex_unlock(&data->m_state);
 		return (0);
+	}
+	pthread_mutex_unlock(&data->m_state);
 	return (1);
 }
